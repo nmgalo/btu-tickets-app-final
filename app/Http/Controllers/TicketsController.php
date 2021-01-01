@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Ticket;
+use App\Models\TrainOption;
+use App\Models\OrderedTicket;
 use DB;
 
 class TicketsController extends Controller
@@ -22,16 +24,30 @@ class TicketsController extends Controller
     					UNIX_TIMESTAMP(t1.arrival_time) as arrivalTime, 
     					(
     						UNIX_TIMESTAMP(t1.arrival_time) - UNIX_TIMESTAMP(t1.departure_time)
-    					) / 60 AS duration"),
+    					) / 60 AS duration"), // duration დავიკიდე ცოტათი, unix თაიმიდან პრობლემა იყო წუთებზე გადაყვანა
     			)->take(30)->get();
     }
 
 
-    public function orderTicket($ticketId) {
+    public function getTicketDetails($ticketId) {
         if (!is_numeric($ticketId))
             return response()->json(["error" => "Wrong ticket ID"], 400);
 
-        return Ticket::find($ticketId);
+        $train_data = DB::table("tickets AS t1")
+            ->where("t1.id", $ticketId)
+            ->join("ordered_tickets AS t2", "t1.id", "=", "t2.ticket_id")
+            ->join("trains AS t3", "t3.id", "=", "t1.train_id")
+            // ->leftJoin("tickets AS t4", "")
+            ->select(
+                "t2.id AS trainId", "t1.id AS ticketId"
+            )->get();
+
+        return $train_data->toArray();
+
+        $seats = OrderedTicket::find($train_data)->seats;
+        $available_seats_sum = $seats[0];
+
+        return $available_seats_sum;
     }
 
 }

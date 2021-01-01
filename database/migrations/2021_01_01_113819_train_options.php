@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Trains extends Migration
+class TrainOptions extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class Trains extends Migration
      */
     public function up()
     {
-        Schema::create('trains', function (Blueprint $table) {
+        Schema::create('train_options', function (Blueprint $table) {
             $table->id();
-            $table->string('model');
+            $table->integer('train_id');
+            $table->integer('train_seats_count_x');
+            $table->integer('train_seats_count_y');
+            $table->enum('avalilable_class', ['econom', 'business']);
             $table->timestamps();
         });
     }
@@ -27,6 +30,6 @@ class Trains extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('trains');
+        Schema::dropIfExists('train_options');
     }
 }

@@ -30,5 +30,5 @@ Route::group([
 
 Route::group(['prefix' => 'v1/tickets'], function() {
 	Route::get("stations/timetable", [TicketsController::class, 'getTicketsTimeTable']);
-	Route::get("order/{ticketId}", [TicketsController::class, 'orderTicket']);
+	Route::get("order/{ticketId}", [TicketsController::class, 'getTicketDetails']);
 });
