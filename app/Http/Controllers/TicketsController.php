@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\TrainOption;
 use App\Models\OrderedTicket;
+use App\Models\OrderedTicketLocation;
 use DB;
 
 class TicketsController extends Controller
@@ -24,30 +25,103 @@ class TicketsController extends Controller
     					UNIX_TIMESTAMP(t1.arrival_time) as arrivalTime, 
     					(
     						UNIX_TIMESTAMP(t1.arrival_time) - UNIX_TIMESTAMP(t1.departure_time)
-    					) / 60 AS duration"), // duration დავიკიდე ცოტათი, unix თაიმიდან პრობლემა იყო წუთებზე გადაყვანა
+    					) / 60 AS duration"),
     			)->take(30)->get();
     }
-
 
     public function getTicketDetails($ticketId) {
         if (!is_numeric($ticketId))
             return response()->json(["error" => "Wrong ticket ID"], 400);
 
+        // SELECT
+        //     t3.id AS trainId, t1.id AS ticketId, t2.*, 
+        //     t4.train_seats_count_x * t4.train_seats_count_y AS sumOfPlacesInTrain 
+        // FROM tickets AS t1 
+        // INNER JOIN trains AS t3 on t3.id = t1.train_id 
+        // INNER JOIN ordered_tickets AS t2 on t1.id = t2.ticket_id 
+        // INNER JOIN ordered_ticket_locations AS t5 on t2.id = t5.order_id 
+        // INNER JOIN train_options AS t4 on t4.train_id = t3.id 
+        // WHERE 
+        //     t1.id = :ticketId and DATE(t1.departure_time) >= CURDATE()
+
+
+        $train_matrix = [];
+
         $train_data = DB::table("tickets AS t1")
             ->where("t1.id", $ticketId)
-            ->join("ordered_tickets AS t2", "t1.id", "=", "t2.ticket_id")
-            ->join("trains AS t3", "t3.id", "=", "t1.train_id")
-            // ->leftJoin("tickets AS t4", "")
+            ->whereRaw("DATE(t1.departure_time) >= CURDATE()")
+            ->leftJoin("trains AS t3", "t3.id", "=", "t1.train_id")
+            ->leftJoin("train_options AS t4", "t4.train_id", "=", "t3.id")
             ->select(
-                "t2.id AS trainId", "t1.id AS ticketId"
-            )->get();
+                "t4.train_seats_count_x", "t4.train_seats_count_y",
+                "t4.avalilable_class AS availableClass", "t3.model AS trainModel",
+                "t3.id AS trainId",
+                "t1.price", "t1.departure_time AS departureTime", "t1.arrival_time AS arrivalTime", "t1.is_adapted"
+            )
+            ->first();
 
-        return $train_data->toArray();
+        $takenPlaces = DB::table("ordered_tickets AS t1")
+            ->where("t1.ticket_id", $ticketId)
+            ->join("ordered_ticket_locations AS t2", "t2.order_id", "=", "t1.id")
+            ->select("t2.order_location_x AS orderedX", "t2.order_location_y AS orderedY")
+            ->get();
 
-        $seats = OrderedTicket::find($train_data)->seats;
-        $available_seats_sum = $seats[0];
 
-        return $available_seats_sum;
+        if (!$train_data || !$takenPlaces || !$train_data->trainId) 
+            return response()->json(["error" => "ticket not found"], 404);
+
+        $trainId = $train_data->trainId;
+
+        // TODO refactor this
+        for ($i = 1; $i <= $train_data->train_seats_count_x; $i++) {
+            for ($j = 1; $j <= $train_data->train_seats_count_y; $j++) {
+                array_push($train_matrix, [
+                    "locationHashId" => 
+                        base64_encode("$i;$j;$trainId;$ticketId"),
+                    "location" => [$i, $j]
+                ]);
+            }
+        }
+
+
+        if (count($takenPlaces) == 0) {
+            for ($x = 0; $x < count($train_matrix); $x++) {
+               $train_matrix[$x]["isAvailable"] = true;
+            }
+        } else {
+            for ($x = 0; $x < count($train_matrix); $x++) {
+                for ($y = 0; $y < count($takenPlaces); $y++) {
+                    if (
+                        ($train_matrix[$x]["location"][0] == $takenPlaces[$y]->orderedX) && 
+                        ($train_matrix[$x]["location"][1] == $takenPlaces[$y]->orderedY) 
+                    ) {
+                        $train_matrix[$x]["isAvailable"] = false;
+                    } else 
+                        $train_matrix[$x]["isAvailable"] = true;
+                }
+            }
+        }
+
+        
+
+        $response = [
+            "vagonClass" => $train_data->availableClass,
+            "trainModel" => $train_data->trainModel,
+            "price" => $train_data->price / 100,
+            "departureTime" => $train_data->departureTime,
+            "arrivalTime" => $train_data->arrivalTime,
+            "isAdapter" => $train_data->is_adapted,
+            "seatsData" => $train_matrix
+        ];
+
+        return $response;
+        
+    }
+
+    public function chooseSeat($seatHash) {
+        $seatData = explode(";", base64_decode($seatHash));
+        return $seatData;
     }
 
 }
+
