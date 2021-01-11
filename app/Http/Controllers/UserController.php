@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Http\Requests\RegistrationRequest;
 
 class UserController extends Controller {
     
@@ -15,9 +16,8 @@ class UserController extends Controller {
 
         $credentials = $request->only('email', 'password');
         try {
-            if (! $token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials))
                 return response()->json(['error' => 'invalid credentials'], 400);
-            }
         } catch (JWTException $e) {
             return response()->json(['error' => 'could not create token'], 500);
         }
@@ -25,7 +25,7 @@ class UserController extends Controller {
         return response()->json(compact('token'));
     }
 
-    public function register(Request $request) {
+    public function register(RegistrationRequest $request) {
         
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -33,9 +33,8 @@ class UserController extends Controller {
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        if($validator->fails()){
+        if($validator->fails())
             return response()->json($validator->errors(), 400);
-        }
 
         $user = User::create([
             'name' => $request->get('name'),
@@ -45,7 +44,7 @@ class UserController extends Controller {
 
         $token = JWTAuth::fromUser($user);
 
-        return response()->json(compact('user','token'),201);
+        return response()->json(compact('user', 'token'), 201);
     }
 
     public function getAuthenticatedUser() {

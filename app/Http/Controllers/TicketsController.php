@@ -105,13 +105,16 @@ class TicketsController extends Controller
         
 
         $response = [
+            "ticketId" => (int) $ticketId,
+            "trainId" => $train_data->trainId,
             "vagonClass" => $train_data->availableClass,
             "trainModel" => $train_data->trainModel,
+            "trainSeatsDimension" => [$train_data->train_seats_count_x, $train_data->train_seats_count_y],
             "price" => $train_data->price / 100,
+            "seatsData" => $train_matrix,
             "departureTime" => $train_data->departureTime,
             "arrivalTime" => $train_data->arrivalTime,
-            "isAdapter" => $train_data->is_adapted,
-            "seatsData" => $train_matrix
+            "isAdapter" => $train_data->is_adapted
         ];
 
         return $response;
