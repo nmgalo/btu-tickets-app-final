@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use App\Http\Requests\RegistrationRequest;
 
 class UserController extends Controller {
     
@@ -25,7 +24,7 @@ class UserController extends Controller {
         return response()->json(compact('token'));
     }
 
-    public function register(RegistrationRequest $request) {
+    public function register(Request $request) {
         
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
