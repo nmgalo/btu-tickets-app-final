@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Train;
 use App\Models\Ticket;
 use App\Models\TrainOption;
 use App\Models\OrderedTicket;
@@ -54,7 +55,7 @@ class TicketsController extends Controller
             ->leftJoin("train_options AS t4", "t4.train_id", "=", "t3.id")
             ->select(
                 "t4.train_seats_count_x", "t4.train_seats_count_y",
-                "t4.avalilable_class AS availableClass", "t3.model AS trainModel",
+                "t4.available_class AS availableClass", "t3.model AS trainModel",
                 "t3.id AS trainId",
                 "t1.price", "t1.departure_time AS departureTime", "t1.arrival_time AS arrivalTime", "t1.is_adapted"
             )
@@ -125,6 +126,104 @@ class TicketsController extends Controller
         $seatData = explode(";", base64_decode($seatHash));
         return $seatData;
     }
+
+
+
+    public function createNewTicket(Request $request) {
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'from_location_id' => 'required|integer',
+            'to_location_id' => 'required|integer',
+            'price' => 'required|integer',
+            'departure_time' => 'required|date',
+            'arrival_time' => 'required|date',
+            'is_adapted' => 'required|boolean',
+            'train_id' => 'required|integer'
+        ]);
+
+        if($validator->fails())
+            return response()->json($validator->errors(), 400);
+
+
+        $ticket = new \App\Models\Ticket();
+        $ticket->from_location_id = $request->get("from_location_id");
+        $ticket->to_location_id = $request->get("to_location_id");
+        $ticket->price = $request->get("price");
+        $ticket->departure_time = $request->get("departure_time");
+        $ticket->arrival_time = $request->get("arrival_time");
+        $ticket->is_adapted = $request->get("is_adapted");
+        $ticket->train_id = $request->get("train_id");
+        $res = $ticket->save();
+
+        if ($res)
+            return response()->json(["result" => "success"], 201);
+        else
+            return response()->json(["result" => "failed", "error" => ""], 500);
+    }
+
+
+    public function createNewLocation(Request $request) {
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'location_name' => 'required|string',
+            'location_short_name' => 'required|string|unique:locations',
+        ]);
+
+        if($validator->fails())
+            return response()->json($validator->errors(), 400);
+
+        $location = new \App\Models\Location();
+        $location->location_name = $request->get("location_name");
+        $location->location_short_name = $request->get("location_short_name");
+        $res = $location->save();
+
+
+        if ($res)
+            return response()->json(["result" => "success"], 201);
+        return response()->json(["result" => "failed", "error" => ""], 500);
+
+    }
+
+
+    public function createNewTrain(Request $request) {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'model' => 'required|string',
+            'train_seats_count_x' => 'required|integer',
+            'train_seats_count_y' => 'required|integer',
+            'available_class' => 'requred'
+        ]);
+
+        if($validator->fails())
+            return response()->json($validator->errors(), 400);
+
+
+        DB::beginTransaction();
+
+        try {
+
+            $train = Train::create([
+                'model' => $request->get("model")
+            ]);
+            $train_id = $train->id;
+
+            $train_options = new \App\Models\TrainOption();
+            $train_options->train_id = $train_id;
+            $train_options->train_seats_count_x = $request->get("train_seats_count_x");
+            $train_options->train_seats_count_y = $request->get("train_seats_count_y");
+            $train_options->available_class = 'econom';
+            $train_options->save();
+
+            DB::commit();
+
+            return response()->json(["result" => "success"], 201);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(["error" => "error occurred", "stack" => $e->getMessage()], 500);
+        }
+
+    }
+
 
 }
 

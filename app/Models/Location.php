@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TrainOption extends Model
+class Location extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'train_id',
-        'train_seats_count_x',
-        'train_seats_count_y',
-        'available_class'
+        'location_name',
+        'location_short_name',
     ];
-
+    
 }

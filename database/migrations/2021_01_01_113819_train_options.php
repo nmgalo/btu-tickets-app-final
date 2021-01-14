@@ -18,7 +18,7 @@ class TrainOptions extends Migration
             $table->integer('train_id');
             $table->integer('train_seats_count_x');
             $table->integer('train_seats_count_y');
-            $table->enum('avalilable_class', ['econom', 'business']);
+            $table->enum('available_class', ['econom', 'business']);
             $table->timestamps();
         });
     }

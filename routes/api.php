@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TicketsController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,15 +17,34 @@ use App\Http\Controllers\TicketsController;
 |
 */
 
-Route::post('register', [UserController::class, 'register']);
-Route::post('login', [UserController::class, 'authenticate']);
 
 Route::group([
-	'middleware' => ['jwt.verify'],
+	'prefix' => 'balance'
+], function() {
+    Route::post('top-up', [PaymentController::class, 'topUpUserBalance']);
+});
+
+
+Route::group([
+	'middleware' => ['jwt.verify.admin'],
 	'prefix' => "admin"
 ], function() {
+
     Route::get('user', [UserController::class, 'getAuthenticatedUser']);
-    Route::get('closed', [UserController::class, 'closed']);
+    Route::post('ticket/create', [TicketsController::class, 'createNewTicket']);
+
+    Route::post('location/create', [TicketsController::class, 'createNewLocation']);
+
+    Route::post('train/create', [TicketsController::class, 'createNewTrain']);
+
+});
+
+
+Route::group([
+	'prefix' => 'passenger'
+], function() {
+    Route::post('register', [UserController::class, 'register']);
+    Route::post('login', [UserController::class, 'authenticate']);
 });
 
 
