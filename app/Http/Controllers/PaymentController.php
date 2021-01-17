@@ -19,14 +19,23 @@ class PaymentController extends Controller
 	    if($validator->fails())
 	        return response()->json($validator->errors(), 400);
 
-	    $user = User::where("email", $request->get("user_email"))->update(['amount' => 1]);
+	    DB::beginTransaction();
 
-	    dd($usere);
+	    try {
 
-	    if ($userUpdate)
+	    	$user = User::where("email", $request->get("user_email"))->get()->first();
+		    $existingBalance = $user->balance ?: 0;
+		    $userId = $user->id;
+
+		    $update = User::find($userId)->update(["balance" => $existingBalance + $request->get("amount")]);
+
+	    	DB::commit();
 	    	return response()->json(["result" => "success"], 201);
+		} catch (\Exception $e) {
+		    DB::rollback();
+		    return response()->json(["result" => "failed"], 500);
+		}
 
-	    return response()->json(["result" => "failed"], 500);
 
     }
 }
