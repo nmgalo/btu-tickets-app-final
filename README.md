@@ -24,6 +24,7 @@ Ticket app rest API service
 
 
 <div style="overflow-x: scroll;">
+<pre>
 
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
 | Domain | Method   | URI                                                                | Name | Action                                                     | Middleware       |
@@ -47,6 +48,7 @@ Ticket app rest API service
 |        | GET|HEAD | api/v1/tickets/stations/timetable                                  |      | App\Http\Controllers\TicketsController@getTicketsTimeTable | api              |
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
 
+<pre>
 </div>
 
 
