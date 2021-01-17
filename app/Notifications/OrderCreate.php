@@ -45,10 +45,10 @@ class OrderCreate extends Notification implements ShouldQueue
         return (new MailMessage)
                     ->line('გილოცავ ^_^')
                     ->action(
-                        'თქვენ შეიძნეთ ბილეთი',
-                        url('/' . $this->data['orderId'] )
+                        'ბილეთის ნახვა',
+                        url('/ticket/preview/' . $this->data['orderId'])
                     )
-                    ->line('მადლობა რო გამოიყენეთ ჩვენი საიტი.');
+                    ->line('მადლობა რო გამოიყენეთ ჩემი საიტი.');
     }
 
     /**
