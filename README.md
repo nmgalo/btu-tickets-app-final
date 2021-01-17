@@ -51,7 +51,6 @@ Ticket app rest API service
 |        | GET|HEAD | api/v1/tickets/ordet/seat/{locationHash}                           |      | App\Http\Controllers\TicketsController@chooseSeat          | api              |
 |        | GET|HEAD | api/v1/tickets/stations/timetable                                  |      | App\Http\Controllers\TicketsController@getTicketsTimeTable | api              |
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
-
 <pre>
 </div>
 

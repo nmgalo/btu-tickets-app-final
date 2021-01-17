@@ -101,15 +101,14 @@ class TicketsController extends Controller
                     if (
                         ($train_matrix[$x]["location"][0] == $takenPlaces[$y]->orderedX) && 
                         ($train_matrix[$x]["location"][1] == $takenPlaces[$y]->orderedY) 
-                    ) {
-                        $train_matrix[$x]["isAvailable"] = false;
-                    } else 
+                    )
+                        $train_matrix[$x]["isAvailable"] = false; 
+                    else 
                         $train_matrix[$x]["isAvailable"] = true;
                 }
             }
         }
 
-        
 
         $response = [
             "ticketId" => (int) $ticketId,
@@ -128,17 +127,8 @@ class TicketsController extends Controller
         
     }
 
-    public function chooseSeat($seatHash) {
-        $seatData = explode(";", base64_decode($seatHash));
-        return $seatData;
-    }
-
-
 
     public function createNewTicket(TicketCreateRequest $request) {
-
-        if($validator->fails())
-            return response()->json($validator->errors(), 400);
 
         $ticket = new \App\Models\Ticket();
         $ticket->from_location_id = $request->get("from_location_id");
@@ -159,9 +149,6 @@ class TicketsController extends Controller
 
     public function createNewLocation(CreateLocationRequest $request) {
 
-        if($validator->fails())
-            return response()->json($validator->errors(), 400);
-
         $location = new \App\Models\Location();
         $location->location_name = $request->get("location_name");
         $location->location_short_name = $request->get("location_short_name");
@@ -176,10 +163,6 @@ class TicketsController extends Controller
 
 
     public function createNewTrain(CreateTrainRequest $request) {
-
-        if($validator->fails())
-            return response()->json($validator->errors(), 400);
-
 
         DB::beginTransaction();
 
@@ -238,10 +221,14 @@ class TicketsController extends Controller
                                 ->leftJoin("ordered_ticket_locations", "ordered_tickets.id", "=", "ordered_ticket_locations.order_id")
                                 ->get();
 
-            if (!$orderedTickets->isEmpty())
+            
+
+            if (!$orderedTickets->isEmpty() || !$orderedTickets)
                 return response()->json([
                     "error" => "allready taken"
                 ], 422);
+
+            // return $orderedTickets;
 
             $order_virtual_id = Str::uuid()->toString();
 
@@ -262,18 +249,22 @@ class TicketsController extends Controller
             $placeOrderAction->save();
             $placeOrderLocationAction->save();
 
-            DB::commit();
-
             $orderIdNotification = [
                 "orderId" => $order_virtual_id
             ];
             \Auth::user()->notify(new OrderCreate($orderIdNotification));
+
+            DB::commit();
 
             if ($placeOrderAction && $placeOrderLocationAction && $userBalanceAction)
                 return response()->json([
                     "result" => "OK",
                     "ticketUserId" => $order_virtual_id
                 ], 200);
+            else 
+                response()->json([
+                    "error" => 1
+                ], 500);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json([
@@ -282,6 +273,15 @@ class TicketsController extends Controller
             ], 500);
         }
 
+    }
+
+
+    public function getTicketForUser($orderId) {
+        $order = OrderedTicket::where("order_id", "=", $orderId)->get();
+        if (!$order->isEmpty()) {
+            $order = $order[0];
+            return view("ticket", compact("order"));
+        }
     }
 
 

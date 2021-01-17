@@ -11,7 +11,7 @@ class OrderCreate extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private $data;
+    protected $data;
 
     /**
      * Create a new notification instance.
@@ -44,7 +44,10 @@ class OrderCreate extends Notification implements ShouldQueue
     {
         return (new MailMessage)
                     ->line('გილოცავ ^_^')
-                    ->action('თქვენ შეიძნეთ ბილეთი, <img src="https://qrcode.tec-it.com/API/QRCode?backcolor=ffffff&data=' . $this->data["orderId"] . '" /> ')
+                    ->action(
+                        'თქვენ შეიძნეთ ბილეთი',
+                        url('/' . $this->data['orderId'] )
+                    )
                     ->line('მადლობა რო გამოიყენეთ ჩვენი საიტი.');
     }
 
@@ -57,7 +60,7 @@ class OrderCreate extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            'orderId' => $this->orderId,
+            'orderId' => $this->data,
         ];
     }
 }

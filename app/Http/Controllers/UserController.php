@@ -28,9 +28,6 @@ class UserController extends Controller {
 
     public function register(RegisterRequest $request) {
 
-        if($validator->fails())
-            return response()->json($validator->errors(), 400);
-
         $user = User::create([
             'name' => $request->get('name'),
             'email' => $request->get('email'),
