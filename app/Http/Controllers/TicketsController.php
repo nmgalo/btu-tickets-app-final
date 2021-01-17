@@ -11,13 +11,15 @@ use App\Models\TrainOption;
 use App\Models\OrderedTicket;
 use App\Models\OrderedTicketLocation;
 use App\Notifications\OrderCreate;
-
+use App\Http\Requests\TicketCreateRequest;
+use App\Http\Requests\CreateTrainRequest;
+use App\Http\Requests\CreateLocationRequest;
 
 
 class TicketsController extends Controller
 {
 
-    public function getTicketsTimeTable(Request $request) {
+    public function getTicketsTimeTable() {
     	return DB::table("tickets AS t1")
     			->whereRaw("DATE(t1.departure_time) >= CURDATE()")
     			->leftJoin("locations AS t2", "t1.from_location_id", "=", "t2.id")
@@ -133,21 +135,10 @@ class TicketsController extends Controller
 
 
 
-    public function createNewTicket(Request $request) {
-
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'from_location_id' => 'required|integer',
-            'to_location_id' => 'required|integer',
-            'price' => 'required|integer',
-            'departure_time' => 'required|date',
-            'arrival_time' => 'required|date',
-            'is_adapted' => 'required|boolean',
-            'train_id' => 'required|integer'
-        ]);
+    public function createNewTicket(TicketCreateRequest $request) {
 
         if($validator->fails())
             return response()->json($validator->errors(), 400);
-
 
         $ticket = new \App\Models\Ticket();
         $ticket->from_location_id = $request->get("from_location_id");
@@ -166,12 +157,7 @@ class TicketsController extends Controller
     }
 
 
-    public function createNewLocation(Request $request) {
-
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'location_name' => 'required|string',
-            'location_short_name' => 'required|string|unique:locations',
-        ]);
+    public function createNewLocation(CreateLocationRequest $request) {
 
         if($validator->fails())
             return response()->json($validator->errors(), 400);
@@ -189,13 +175,7 @@ class TicketsController extends Controller
     }
 
 
-    public function createNewTrain(Request $request) {
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
-            'model' => 'required|string',
-            'train_seats_count_x' => 'required|integer',
-            'train_seats_count_y' => 'required|integer',
-            'available_class' => 'requred'
-        ]);
+    public function createNewTrain(CreateTrainRequest $request) {
 
         if($validator->fails())
             return response()->json($validator->errors(), 400);

@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Http\Requests\PaymentRequest;
 use DB;
 
 class PaymentController extends Controller
 {
     // TODO implement functions
-    public function topUpUserBalance(Request $request) {
+    public function topUpUserBalance(PaymentRequest $request) {
 
 		$validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
 	        'user_email' => 'required|email',

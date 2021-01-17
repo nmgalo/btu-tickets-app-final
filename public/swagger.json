@@ -1,0 +1,344 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Laravel",
+        "description": "",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "\/api\/balance\/top-up": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "user_email",
+                                "amount"
+                            ],
+                            "properties": {
+                                "user_email": {
+                                    "type": "string"
+                                },
+                                "amount": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/admin\/user": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "\/api\/admin\/ticket\/create": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "from_location_id",
+                                "to_location_id",
+                                "price",
+                                "departure_time",
+                                "arrival_time",
+                                "is_adapted",
+                                "train_id"
+                            ],
+                            "properties": {
+                                "from_location_id": {
+                                    "type": "integer"
+                                },
+                                "to_location_id": {
+                                    "type": "integer"
+                                },
+                                "price": {
+                                    "type": "integer"
+                                },
+                                "departure_time": {
+                                    "type": "string"
+                                },
+                                "arrival_time": {
+                                    "type": "string"
+                                },
+                                "is_adapted": {
+                                    "type": "boolean"
+                                },
+                                "train_id": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/admin\/location\/create": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "location_name",
+                                "location_short_name"
+                            ],
+                            "properties": {
+                                "location_name": {
+                                    "type": "string"
+                                },
+                                "location_short_name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/admin\/train\/create": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "model",
+                                "train_seats_count_x",
+                                "train_seats_count_y"
+                            ],
+                            "properties": {
+                                "model": {
+                                    "type": "string"
+                                },
+                                "train_seats_count_x": {
+                                    "type": "integer"
+                                },
+                                "train_seats_count_y": {
+                                    "type": "integer"
+                                },
+                                "available_class": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/passenger\/register": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "email",
+                                "password"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/passenger\/login": {
+            "post": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "",
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "email",
+                                "password"
+                            ],
+                            "properties": {
+                                "email": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/tickets\/order-tickets\/order-selected-place\/{locationHashId}": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "locationHashId",
+                        "type": "string",
+                        "required": true,
+                        "description": ""
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/tickets\/stations\/timetable": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "\/api\/v1\/tickets\/order\/{ticketId}": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ticketId",
+                        "type": "string",
+                        "required": true,
+                        "description": ""
+                    }
+                ]
+            }
+        },
+        "\/api\/v1\/tickets\/ordet\/seat\/{locationHash}": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "locationHash",
+                        "type": "string",
+                        "required": true,
+                        "description": ""
+                    }
+                ]
+            }
+        },
+        "\/": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}
