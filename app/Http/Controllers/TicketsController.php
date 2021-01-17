@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use DB;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Train;
 use App\Models\Ticket;
 use App\Models\TrainOption;
 use App\Models\OrderedTicket;
 use App\Models\OrderedTicketLocation;
-use DB;
+
 
 class TicketsController extends Controller
 {
@@ -219,11 +221,82 @@ class TicketsController extends Controller
 
         } catch (\Exception $e) {
             DB::rollback();
+            // TODO remote stack object
             return response()->json(["error" => "error occurred", "stack" => $e->getMessage()], 500);
+        }
+
+    }
+
+    public function orderSelectedPlace($locationHashId) {
+
+        // TODO handle Exceptions   
+        $ticketHashValue = explode(";", base64_decode($locationHashId));
+
+        $locationX = (int) $ticketHashValue[0];
+        $locationY = (int) $ticketHashValue[1];
+        $trainId = (int) $ticketHashValue[2];
+        $ticketId = (int) $ticketHashValue[3];
+
+        $ticketData = Ticket::find($ticketId);
+        $ticketPrice = $ticketData->price;
+
+        if ($ticketPrice > \Auth::user()->balance) 
+            return response()->json(["error" => "Insufficient amount"], 422);
+
+        DB::beginTransaction();
+
+        try {
+
+            $orderedTickets = DB::table("ordered_tickets")
+                                ->where([
+                                    "ordered_ticket_locations.order_location_x" => $locationX,
+                                    "ordered_ticket_locations.order_location_y" => $locationY,
+                                ])
+                                ->select("ordered_tickets.id", "ordered_ticket_locations.order_location_x", "ordered_ticket_locations.order_location_y")
+                                ->leftJoin("ordered_ticket_locations", "ordered_tickets.id", "=", "ordered_ticket_locations.order_id")
+                                ->get();
+
+
+            if (!$orderedTickets->isEmpty())
+                return response()->json([
+                    "error" => "allready taken"
+                ], 422);
+
+            $order_virtual_id = Str::uuid()->toString();
+
+
+            $userBalanceAction = \Auth::user()->update(["balance" => (\Auth::user()->balance) - $ticketData->price ]);
+            $placeOrderAction = OrderedTicket::create([
+                "ticket_id" => $ticketId,
+                "user_id" => \Auth::id(),
+                "order_id" => $order_virtual_id,
+            ]);
+
+            $placeOrderLocationAction = OrderedTicketLocation::create([
+                "order_id" => $placeOrderAction->id,
+                "order_location_x" => $locationX,
+                "order_location_y" => $locationY,
+            ]);
+
+            $placeOrderAction->save();
+            $placeOrderLocationAction->save();
+
+            DB::commit();
+
+            if ($placeOrderAction && $placeOrderLocationAction && $userBalanceAction)
+                return response()->json([
+                    "result" => "OK",
+                    "ticketUserId" => $order_virtual_id
+                ], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json([
+                "error" => "error occurred, please try again later",
+                "stackTrace" => $e->getMessage()
+            ], 500);
         }
 
     }
 
 
 }
-

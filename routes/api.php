@@ -18,6 +18,7 @@ use App\Http\Controllers\PaymentController;
 */
 
 
+// payments API
 Route::group([
 	'prefix' => 'balance'
 ], function() {
@@ -25,6 +26,7 @@ Route::group([
 });
 
 
+// admin API
 Route::group([
 	'middleware' => ['jwt.verify.admin'],
 	'prefix' => "admin"
@@ -39,7 +41,7 @@ Route::group([
 
 });
 
-
+// passenger API
 Route::group([
 	'prefix' => 'passenger'
 ], function() {
@@ -48,8 +50,24 @@ Route::group([
 });
 
 
+
+// tickets API
 Route::group(['prefix' => 'v1/tickets'], function() {
+
+	Route::group([
+		'middleware' => ['jwt.verify'],
+		'prefix' => 'order-tickets'
+	], function() {
+		Route::get("order-selected-place/{locationHashId}", [TicketsController::class, 'orderSelectedPlace']);
+	});
+
 	Route::get("stations/timetable", [TicketsController::class, 'getTicketsTimeTable']);
 	Route::get("order/{ticketId}", [TicketsController::class, 'getTicketDetails']);
 	Route::get("ordet/seat/{locationHash}", [TicketsController::class, 'chooseSeat']);
+
 });
+
+
+
+
+

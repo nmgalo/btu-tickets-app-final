@@ -15,8 +15,9 @@ class OrderedTicket extends Model
         'order_id'
     ];
 
-    public function seats() {
-    	return $this->hasMany(TrainOption::class, 'id');
+
+    public function locations() {
+    	return $this->hasMany(OrderedTicketLocation::class);
     }
 
 }
