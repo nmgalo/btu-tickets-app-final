@@ -29,7 +29,6 @@ Ticket app rest API service
 
 <div style="overflow-x: scroll;">
 <pre>
-
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
 | Domain | Method   | URI                                                                | Name | Action                                                     | Middleware       |
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
@@ -48,8 +47,8 @@ Ticket app rest API service
 |        | GET|HEAD | api/v1/tickets/order-tickets/order-selected-place/{locationHashId} |      | App\Http\Controllers\TicketsController@orderSelectedPlace  | api              |
 |        |          |                                                                    |      |                                                            | jwt.verify       |
 |        | GET|HEAD | api/v1/tickets/order/{ticketId}                                    |      | App\Http\Controllers\TicketsController@getTicketDetails    | api              |
-|        | GET|HEAD | api/v1/tickets/ordet/seat/{locationHash}                           |      | App\Http\Controllers\TicketsController@chooseSeat          | api              |
 |        | GET|HEAD | api/v1/tickets/stations/timetable                                  |      | App\Http\Controllers\TicketsController@getTicketsTimeTable | api              |
+|        | GET|HEAD | ticket/preview/{orderId}                                           |      | App\Http\Controllers\TicketsController@getTicketForUser    | web              |
 +--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
 <pre>
 </div>
