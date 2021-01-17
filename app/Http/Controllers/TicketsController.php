@@ -10,6 +10,8 @@ use App\Models\Ticket;
 use App\Models\TrainOption;
 use App\Models\OrderedTicket;
 use App\Models\OrderedTicketLocation;
+use App\Notifications\OrderCreate;
+
 
 
 class TicketsController extends Controller
@@ -256,7 +258,6 @@ class TicketsController extends Controller
                                 ->leftJoin("ordered_ticket_locations", "ordered_tickets.id", "=", "ordered_ticket_locations.order_id")
                                 ->get();
 
-
             if (!$orderedTickets->isEmpty())
                 return response()->json([
                     "error" => "allready taken"
@@ -283,6 +284,11 @@ class TicketsController extends Controller
 
             DB::commit();
 
+            $orderIdNotification = [
+                "orderId" => $order_virtual_id
+            ];
+            \Auth::user()->notify(new OrderCreate($orderIdNotification));
+
             if ($placeOrderAction && $placeOrderLocationAction && $userBalanceAction)
                 return response()->json([
                     "result" => "OK",
@@ -292,7 +298,7 @@ class TicketsController extends Controller
             DB::rollback();
             return response()->json([
                 "error" => "error occurred, please try again later",
-                "stackTrace" => $e->getMessage()
+                "errorMsg" => $e->getMessage()
             ], 500);
         }
 

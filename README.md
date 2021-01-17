@@ -23,6 +23,33 @@ Ticket app rest API service
 
 
 
+<div style="overflow-x: scroll;">
+
++--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
+| Domain | Method   | URI                                                                | Name | Action                                                     | Middleware       |
++--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
+|        | GET|HEAD | /                                                                  |      | Closure                                                    | web              |
+|        | POST     | api/admin/location/create                                          |      | App\Http\Controllers\TicketsController@createNewLocation   | api              |
+|        |          |                                                                    |      |                                                            | jwt.verify.admin |
+|        | POST     | api/admin/ticket/create                                            |      | App\Http\Controllers\TicketsController@createNewTicket     | api              |
+|        |          |                                                                    |      |                                                            | jwt.verify.admin |
+|        | POST     | api/admin/train/create                                             |      | App\Http\Controllers\TicketsController@createNewTrain      | api              |
+|        |          |                                                                    |      |                                                            | jwt.verify.admin |
+|        | GET|HEAD | api/admin/user                                                     |      | App\Http\Controllers\UserController@getAuthenticatedUser   | api              |
+|        |          |                                                                    |      |                                                            | jwt.verify.admin |
+|        | POST     | api/balance/top-up                                                 |      | App\Http\Controllers\PaymentController@topUpUserBalance    | api              |
+|        | POST     | api/passenger/login                                                |      | App\Http\Controllers\UserController@authenticate           | api              |
+|        | POST     | api/passenger/register                                             |      | App\Http\Controllers\UserController@register               | api              |
+|        | GET|HEAD | api/v1/tickets/order-tickets/order-selected-place/{locationHashId} |      | App\Http\Controllers\TicketsController@orderSelectedPlace  | api              |
+|        |          |                                                                    |      |                                                            | jwt.verify       |
+|        | GET|HEAD | api/v1/tickets/order/{ticketId}                                    |      | App\Http\Controllers\TicketsController@getTicketDetails    | api              |
+|        | GET|HEAD | api/v1/tickets/ordet/seat/{locationHash}                           |      | App\Http\Controllers\TicketsController@chooseSeat          | api              |
+|        | GET|HEAD | api/v1/tickets/stations/timetable                                  |      | App\Http\Controllers\TicketsController@getTicketsTimeTable | api              |
++--------+----------+--------------------------------------------------------------------+------+------------------------------------------------------------+------------------+
+
+</div>
+
+
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
