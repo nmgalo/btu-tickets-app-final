@@ -181,6 +181,27 @@
                 ]
             }
         },
+        "\/api\/admin\/ticket\/check-ordered-ticket\/{ticketId}": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ticketId",
+                        "type": "string",
+                        "required": true,
+                        "description": ""
+                    }
+                ]
+            }
+        },
         "\/api\/passenger\/register": {
             "post": {
                 "summary": "",
@@ -307,7 +328,19 @@
                 ]
             }
         },
-        "\/api\/v1\/tickets\/ordet\/seat\/{locationHash}": {
+        "\/": {
+            "get": {
+                "summary": "",
+                "description": "",
+                "deprecated": false,
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "\/ticket\/preview\/{orderId}": {
             "get": {
                 "summary": "",
                 "description": "",
@@ -320,24 +353,12 @@
                 "parameters": [
                     {
                         "in": "path",
-                        "name": "locationHash",
+                        "name": "orderId",
                         "type": "string",
                         "required": true,
                         "description": ""
                     }
                 ]
-            }
-        },
-        "\/": {
-            "get": {
-                "summary": "",
-                "description": "",
-                "deprecated": false,
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
             }
         }
     }

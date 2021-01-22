@@ -29,16 +29,13 @@ Route::group([
 // admin API
 Route::group([
 	'middleware' => ['jwt.verify.admin'],
-	'prefix' => "admin"
+	'prefix' => 'admin'
 ], function() {
-
     Route::get('user', [UserController::class, 'getAuthenticatedUser']);
     Route::post('ticket/create', [TicketsController::class, 'createNewTicket']);
-
     Route::post('location/create', [TicketsController::class, 'createNewLocation']);
-
     Route::post('train/create', [TicketsController::class, 'createNewTrain']);
-
+    Route::get('ticket/check-ordered-ticket/{ticketId}', [TicketsController::class, 'checkOrderedTicket']);
 });
 
 // passenger API
@@ -58,11 +55,12 @@ Route::group(['prefix' => 'v1/tickets'], function() {
 		'middleware' => ['jwt.verify'],
 		'prefix' => 'order-tickets'
 	], function() {
-		Route::get("order-selected-place/{locationHashId}", [TicketsController::class, 'orderSelectedPlace']);
+		Route::get('order-selected-place/{locationHashId}', [TicketsController::class, 'orderSelectedPlace']);
+		Route::get('get-order-history', [TicketsController::class, 'getOrderHistory']);
 	});
 
-	Route::get("stations/timetable", [TicketsController::class, 'getTicketsTimeTable']);
-	Route::get("order/{ticketId}", [TicketsController::class, 'getTicketDetails']);
+	Route::get('stations/timetable', [TicketsController::class, 'getTicketsTimeTable']);
+	Route::get('order/{ticketId}', [TicketsController::class, 'getTicketDetails']);
 });
 
 

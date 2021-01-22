@@ -59,13 +59,19 @@ class TicketsController extends Controller
             ->whereRaw("DATE(t1.departure_time) >= CURDATE()")
             ->leftJoin("trains AS t3", "t3.id", "=", "t1.train_id")
             ->leftJoin("train_options AS t4", "t4.train_id", "=", "t3.id")
+            ->leftJoin("ordered_tickets AS t5", "t5.ticket_id", "=", "t1.id")
+            ->leftJoin("ordered_ticket_locations AS t6", "t6.order_id", "=", "t5.id")
             ->select(
                 "t4.train_seats_count_x", "t4.train_seats_count_y",
                 "t4.available_class AS availableClass", "t3.model AS trainModel",
                 "t3.id AS trainId",
-                "t1.price", "t1.departure_time AS departureTime", "t1.arrival_time AS arrivalTime", "t1.is_adapted"
+                "t1.price", "t1.departure_time AS departureTime", "t1.arrival_time AS arrivalTime", "t1.is_adapted",
+                "t6.order_location_x"
             )
             ->first();
+
+
+        // return [$train_data];
 
         $takenPlaces = DB::table("ordered_tickets AS t1")
             ->where("t1.ticket_id", $ticketId)
@@ -91,20 +97,21 @@ class TicketsController extends Controller
         }
 
 
+
         if (count($takenPlaces) == 0) {
             for ($x = 0; $x < count($train_matrix); $x++) {
                $train_matrix[$x]["isAvailable"] = true;
             }
         } else {
+            // TODO implement it better
             for ($x = 0; $x < count($train_matrix); $x++) {
+                $train_matrix[$x]["isAvailable"] = null;
                 for ($y = 0; $y < count($takenPlaces); $y++) {
-                    if (
+                    if($train_matrix[$x]["isAvailable"] == true ?: null) continue;
+                    $train_matrix[$x]["isAvailable"] = (
                         ($train_matrix[$x]["location"][0] == $takenPlaces[$y]->orderedX) && 
                         ($train_matrix[$x]["location"][1] == $takenPlaces[$y]->orderedY) 
-                    )
-                        $train_matrix[$x]["isAvailable"] = false; 
-                    else 
-                        $train_matrix[$x]["isAvailable"] = true;
+                    ) ? false : true;
                 }
             }
         }
@@ -221,14 +228,10 @@ class TicketsController extends Controller
                                 ->leftJoin("ordered_ticket_locations", "ordered_tickets.id", "=", "ordered_ticket_locations.order_id")
                                 ->get();
 
-            
-
             if (!$orderedTickets->isEmpty() || !$orderedTickets)
                 return response()->json([
                     "error" => "allready taken"
                 ], 422);
-
-            // return $orderedTickets;
 
             $order_virtual_id = Str::uuid()->toString();
 
@@ -282,6 +285,39 @@ class TicketsController extends Controller
             $order = $order[0];
             return view("ticket", compact("order"));
         }
+    }
+
+
+    public function checkOrderedTicket($orderId) {
+        // $order = OrderedTicket::where("order_id", "=", $orderId)->get();
+        $order = DB::table("ordered_tickets")
+            ->where("order_id", "=", $orderId)
+            ->join("users", "users.id", "=", "ordered_tickets.user_id")
+            // ->join("ordered_ticket_locations", "ordered_ticket_locations.order_id", "=", "ordered_tickets.id")
+            ->select(
+                "users.name", "users.email", "ordered_tickets.order_id", "ordered_tickets.created_at",
+            )
+            ->first();
+        if ($order)
+            return response()->json($order);
+         return response()->json(["error" => "ticket not found"], 404);
+    }
+
+    public function getOrderHistory() {
+        $tickets = DB::table("ordered_tickets AS t1")
+                    ->where("user_id", "=", \Auth::id())
+                    ->join("tickets AS t2", "t1.ticket_id", "=", "t2.id")
+                    ->join("locations AS t3", "t2.from_location_id", "=", "t3.id")
+                    ->join("locations AS t4", "t2.to_location_id", "=", "t4.id")
+                    ->select(
+                        "t1.id",
+                        "order_id AS orderId", "t3.location_name AS fromDestionation",
+                        "t4.location_name AS toDestination", "t1.created_at AS reservationDate",
+                        DB::raw("CAST(ROUND(t2.price / 100, 2) as float) AS ticketPrice")
+                    )
+                    ->orderBy("id", "DESC")
+                    ->get();
+        return $tickets;
     }
 
 

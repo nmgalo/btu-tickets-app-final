@@ -60,7 +60,7 @@ class OrderCreate extends Notification implements ShouldQueue
     public function toArray($notifiable)
     {
         return [
-            'orderId' => $this->data,
+            $this->data,
         ];
     }
 }
